@@ -11,7 +11,7 @@ export function getBaseManifest() {
         version: pkg.version,
         homepage_url:pkg.homepage,
         author: pkg.author,
-        default_locale: "en",
+        default_locale: "zh_TW",
         icons: {
             48: icon48,
             96: icon96,

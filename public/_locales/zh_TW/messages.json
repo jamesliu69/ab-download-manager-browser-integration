@@ -1,4 +1,178 @@
 {
+  "selection_popup_download_selected": {
+    "message": "下載選取的項目"
+  },
+  "popup_alert_no_link_detected": {
+    "message": "沒有偵測到連結"
+  },
+  "popup_alert_nothing_selected": {
+    "message": "請先選取內容"
+  },
+  "context_menu_download_with_abdm": {
+    "message": "用 AB DM 下載"
+  },
+  "context_menu_download_selected_links_with_abdm": {
+    "message": "用 AB DM 下載選取的連結"
+  },
+  "browser_action_popup_title": {
+    "message": "AB DM 快速設定"
+  },
+  "option_ui_title": {
+    "message": "AB Download Manager 擴充功能"
+  },
+  "connection_connected": {
+    "message": "已連線"
+  },
+  "connection_not_connected": {
+    "message": "未連線"
+  },
+  "connection_checking": {
+    "message": "檢查中"
+  },
+  "config_auto_capture_links": {
+    "message": "自動擷取下載連結"
+  },
+  "config_auto_capture_links_description": {
+    "message": "當你在瀏覽器點擊連結時，會自動交給應用程式擷取下載"
+  },
+  "reset_to_default": {
+    "message": "重設為預設值"
+  },
+  "config_auto_capture_links_file_extensions_description": {
+    "message": "輸入要擷取的副檔名後按 Enter，逐一加入"
+  },
+  "config_blacklisted_urls_description": {
+    "message": "輸入不想被擷取的網址（一行一個，支援萬用字元 *）"
+  },
+  "config_silent_add_download": {
+    "message": "靜默加入下載"
+  },
+  "config_silent_add_download_description": {
+    "message": "自動將擷取到的下載加入下載清單，不顯示「新增下載」視窗"
+  },
+  "config_silent_start_download": {
+    "message": "靜默開始下載"
+  },
+  "config_silent_start_download_description": {
+    "message": "自動開始擷取到的下載，不顯示「新增下載」視窗"
+  },
+  "config_show_popups": {
+    "message": "顯示彈出提示"
+  },
+  "config_show_popups_description": {
+    "message": "選取的內容包含連結時，顯示彈出視窗"
+  },
+  "config_context_menu": {
+    "message": "加入右鍵選單"
+  },
+  "config_context_menu_description": {
+    "message": "在右鍵選單加入「用 AB DM 下載」"
+  },
+  "config_native_messaging_host": {
+    "message": "Native Messaging"
+  },
+  "config_native_messaging_host_description": {
+    "message": "擴充功能攔截到新下載時，即使應用程式尚未開啟，也會自動將它啟動"
+  },
+  "config_native_messaging_host_reachable": {
+    "message": "主機可連線"
+  },
+  "config_native_messaging_host_not_reachable": {
+    "message": "主機無法連線"
+  },
+  "config_port": {
+    "message": "連接埠"
+  },
+  "config_port_description": {
+    "message": "這裡的連接埠必須與應用程式中的設定相同，否則擴充功能無法正常運作"
+  },
+  "config_api_key": {
+    "message": "API 金鑰"
+  },
+  "config_api_key_description": {
+    "message": "如果你在應用程式設定中啟用了 API 金鑰驗證，請在此貼上產生的 API 金鑰。"
+  },
+  "config_port_connection_success": {
+    "message": "成功\n連接埠（$port$）已連線",
+    "placeholders": {
+      "port": {
+        "content": "$1",
+        "example": "15151"
+      }
+    }
+  },
+  "config_port_connection_fail": {
+    "message": "失敗\n連接埠（$port$）無法連線",
+    "placeholders": {
+      "port": {
+        "content": "$1",
+        "example": "15151"
+      }
+    }
+  },
+  "config_send_cookies": {
+    "message": "傳送 Cookie"
+  },
+  "config_send_cookies_descrption": {
+    "message": "注意：在不受信任的環境中請勿勾選"
+  },
+  "browser_action_more_settings": {
+    "message": "更多設定"
+  },
+  "connection_error_api_error": {
+    "message": "應用程式 API 發生問題，請確認應用程式與擴充功能都已更新至最新版本"
+  },
+  "connection_error_network_error": {
+    "message": "無法連線到應用程式，請確認應用程式已安裝並正在執行，且應用程式設定中的「瀏覽器整合」功能已開啟"
+  },
+  "settings": {
+    "message": "設定"
+  },
+  "test": {
+    "message": "測試"
+  },
+  "note_about_app_must_be_installed_first": {
+    "message": "要讓擴充功能正常運作，請先安裝 AB Download Manager……"
+  },
+  "download_abdm_app": {
+    "message": "下載應用程式"
+  },
+  "project_website": {
+    "message": "專案網站"
+  },
+  "support_by_rating": {
+    "message": "如果你喜歡這個作品，別忘了留下評論／評分支持，也分享給你的朋友"
+  },
+  "project_source_code": {
+    "message": "專案原始碼"
+  },
+  "abdm_notification_title": {
+    "message": "AB Download Manager"
+  },
+  "abdm_notification_download_captured_silently": {
+    "message": "已靜默擷取下載"
+  },
+  "download_media_title": {
+    "message": "用 ABDM 下載"
+  },
+  "config_capture_file_size_limit_kb": {
+    "message": "擷取檔案大小下限（KB）"
+  },
+  "config_capture_file_size_limit_kb_description": {
+    "message": "只擷取大於或等於此值（單位 KB）的檔案；設為 0 表示全部擷取。"
+  },
+  "config_bypass_shortcut": {
+    "message": "略過攔截快捷鍵"
+  },
+  "config_press_a_key": {
+    "message": "請按下一個按鍵或組合鍵…"
+  },
+  "config_bypass_shortcut_control_mac_warning": {
+    "message": "在 macOS 上 Control＋點擊等同於右鍵，點擊事件不會傳到頁面，請改選其他按鍵。"
+  },
+  "config_bypass_shortcut_description": {
+    "message": "開啟自動擷取下載連結時，按住快捷鍵再點擊下載連結，就會改用瀏覽器內建的下載方式。"
+  },
   "chooser_title": {
     "message": "這個檔案要用什麼方式下載？"
   },
