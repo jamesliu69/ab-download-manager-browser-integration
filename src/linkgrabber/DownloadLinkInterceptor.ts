@@ -4,7 +4,7 @@ import {inRange} from "~/utils/NumberUtils";
 import {DownloadRequestHeaders, DownloadRequestItem} from "~/interfaces/DownloadRequestItem";
 import {addDownload, getHeadersForUrl} from "~/background/actions";
 import {run} from "~/utils/ScopeFunctions";
-import {Tabs, WebRequest} from "webextension-polyfill";
+import {Tabs, WebRequest, Downloads} from "webextension-polyfill";
 import browser from "webextension-polyfill";
 import {isChrome} from "~/utils/ExtensionInfo";
 import urlMatch from "match-url-wildcard"
@@ -17,6 +17,8 @@ import {getContentLength, getContentType} from "~/utils/HeaderUtils";
 import {getFileExtension, getFileFromHeaders, getFileFromUrl} from "~/utils/URLUtils";
 import _ from "lodash";
 import * as BackgroundSharedState from "~/background/BackgroundSharedState";
+import {consumeBypassIfMatched} from "~/background/BypassDownloads";
+import {DownloadChooserMeta, openDownloadChooser} from "~/background/DownloadChooser";
 
 type TabInfo = {
     title?: string,
@@ -222,6 +224,61 @@ export abstract class DownloadLinkInterceptor {
         return true
     }
 
+    /**
+     * 自動攔截到下載時的分流：若間啟用 askDownloadMethod，
+     * 改彈出「下載方式選擇視窗」交由使用者決定，而不直接送進 App。
+     * 回傳 true 表示已改走選擇視窗（呼叫端不需再送 App）。
+     */
+    protected async maybeOpenDownloadChooser(
+        item: DownloadRequestItem,
+        meta: DownloadChooserMeta,
+    ): Promise<boolean> {
+        if (!getLatestConfig().askDownloadMethod) {
+            return false
+        }
+        await openDownloadChooser(item, meta)
+        return true
+    }
+
+    /** 從 URL 抽出 host，失敗回 null（僅供選擇視窗顯示用） */
+    private hostOf(url: string | null | undefined): string | null {
+        if (!url) return null
+        try {
+            return new URL(url).host
+        } catch (error) {
+            return null
+        }
+    }
+
+    /** webRequest 攔截路徑：用最終回應標頭組出選擇視窗的顯示資訊 */
+    private buildChooserMetaFromResponse(details: WebRequest.OnHeadersReceivedDetailsType): DownloadChooserMeta {
+        const responseHeaders = getHeaders(details.responseHeaders)
+        const downloadPage = this.getDownloadPage(details)
+        return {
+            fileName: getFileFromHeaders(responseHeaders) ?? getFileFromUrl(details.url),
+            sizeBytes: getContentLength(responseHeaders),
+            mimeType: getContentType(responseHeaders),
+            urlHost: this.hostOf(details.url),
+            pageHost: this.hostOf(downloadPage),
+        }
+    }
+
+    /** downloads.onCreated 攔截路徑：用下載項目資訊組出選擇視窗的顯示資訊 */
+    private buildChooserMetaFromDownload(
+        details: Downloads.OnCreatedDownloadType,
+        interceptedRequest: InterceptedBrowserRequestWithResponse | undefined,
+    ): DownloadChooserMeta {
+        const responseHeaders = getHeaders(interceptedRequest?.finalResponse?.responseHeaders)
+        const fileSize = details.fileSize > 0 ? details.fileSize : null
+        return {
+            fileName: details.filename || getFileFromUrl(details.url),
+            sizeBytes: fileSize ?? getContentLength(responseHeaders),
+            mimeType: getContentType(responseHeaders),
+            urlHost: this.hostOf(details.url),
+            pageHost: this.hostOf(details.referrer),
+        }
+    }
+
     protected createDirectDownloadItemFromWebRequest(
         request: WebRequest.OnSendHeadersDetailsType,
     ): DownloadRequestItem {
@@ -370,10 +427,27 @@ export abstract class DownloadLinkInterceptor {
                     if (!result) {
                         return this.passResponse()
                     }
+                    // 使用者選了「用瀏覽器下載」的 URL：放行一次，避免攔到我們自己發起的新請求
+                    if (consumeBypassIfMatched([
+                        details.url,
+                        request.initialRequest?.url,
+                        request.finalRequest?.url,
+                    ])) {
+                        return this.passResponse()
+                    }
                     // let the browser.download now that we handled the request here!
                     request.handledOnWebRequest = true
                     // direct download
                     const downloadRequestItem = this.createDirectDownloadItemFromWebRequest(request.finalRequest)
+                    // 先問使用者要用哪個下載器（開啟選擇視窗），原生下載已在 onCreated 被取消
+                    if (await this.maybeOpenDownloadChooser(
+                        downloadRequestItem,
+                        this.buildChooserMetaFromResponse(details),
+                    )) {
+                        // 視同已處理：若來源是新分頁，比照送 App 成功時關掉它
+                        await this.onDownloadSendToAppSuccess(request.finalRequest)
+                        return this.cancelResponse()
+                    }
                     const requestAccepted = await this.requestAddDownload(downloadRequestItem);
                     if (requestAccepted) {
                         // if (!this.canBlockResponse()) {
@@ -426,6 +500,15 @@ export abstract class DownloadLinkInterceptor {
             // do we have recorded its request?
             const interceptedRequest = this
                 .getInterceptedRequestByUrl(details.url)
+
+            // 使用者選了「用瀏覽器下載」的 URL：放行一次，避免攔到我們自己發起的新請求
+            if (consumeBypassIfMatched([
+                details.url,
+                interceptedRequest?.initialRequest?.url,
+                interceptedRequest?.finalRequest?.url,
+            ])) {
+                return
+            }
 
             if (!interceptedRequest && this.shouldSkipUninterceptedDownloads()) {
                 return
@@ -498,6 +581,13 @@ export abstract class DownloadLinkInterceptor {
                 suggestedName: null,
                 type: "http",
             };
+            // 先問使用者要用哪個下載器（原生下載已取消，之後依選擇送 App 或退回瀏覽器）
+            if (await this.maybeOpenDownloadChooser(
+                item,
+                this.buildChooserMetaFromDownload(details, interceptedRequest),
+            )) {
+                return
+            }
             await this.requestAddDownload(item)
         })
     }

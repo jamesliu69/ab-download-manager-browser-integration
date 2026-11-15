@@ -8,6 +8,8 @@ import {keepListeningToEvents} from "~/utils/extension-api";
 import {IS_MV3} from "~/utils/ManifestUtil";
 import {setHoldingKey} from "~/background/BackgroundSharedState";
 import {DefinedCommands} from "~/message/Commands";
+import {bootBypassDownloads} from "~/background/BypassDownloads";
+import {handleChooserChoice} from "~/background/DownloadChooser";
 import {defineExtensionEntry} from "~/utils/DefineExtensionEntry";
 import platformInfoProvider from "~/utils/platform/InitPlatformFromBackground";
 import BackgroundEntryType from "~/utils/EntryPointTypes/background/BackgroundEntryType";
@@ -37,6 +39,11 @@ function receiveMessageFromContentScripts() {
     onMessage(DefinedCommands.GET_PLATFORM, async () => {
         return await platformInfoProvider.getPlatformInfo()
     })
+    onMessage(DefinedCommands.DOWNLOAD_CHOOSER_CHOICE, async (msg) => {
+        // 選擇視窗頁面回報使用者的下載方式選擇
+        const {id, choice} = msg.data as {id: string, choice: "app" | "browser"}
+        return await handleChooserChoice(id, choice)
+    })
 }
 
 export default defineExtensionEntry()
@@ -48,6 +55,7 @@ export default defineExtensionEntry()
                 disposable.add(keepListeningToEvents())
             }
             await Backend.boot()
+            await bootBypassDownloads()
             disposable.add(initializeOptions())
             redirectDownloadLinksToMe()
             receiveMessageFromContentScripts()

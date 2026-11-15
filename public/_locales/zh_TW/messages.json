@@ -1,0 +1,20 @@
+{
+  "chooser_title": {
+    "message": "這個檔案要用什麼方式下載？"
+  },
+  "chooser_with_app": {
+    "message": "用 AB Download Manager 下載"
+  },
+  "chooser_with_browser": {
+    "message": "用瀏覽器下載"
+  },
+  "chooser_size_unknown": {
+    "message": "大小未知"
+  },
+  "chooser_expired": {
+    "message": "這個下載要求已不存在。"
+  },
+  "config_ask_download_method": {
+    "message": "下載時先詢問下載方式"
+  }
+}

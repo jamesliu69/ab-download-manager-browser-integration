@@ -172,5 +172,23 @@
   },
   "config_bypass_shortcut_description": {
     "message": "When auto-capture of download links is enabled, holding down the shortcut key and clicking on the download link uses the internal browser download method."
+  },
+  "chooser_title": {
+    "message": "How do you want to download this file?"
+  },
+  "chooser_with_app": {
+    "message": "Download with AB Download Manager"
+  },
+  "chooser_with_browser": {
+    "message": "Download with browser"
+  },
+  "chooser_size_unknown": {
+    "message": "Unknown size"
+  },
+  "chooser_expired": {
+    "message": "This download request is no longer available."
+  },
+  "config_ask_download_method": {
+    "message": "Ask which downloader to use"
   }
 }

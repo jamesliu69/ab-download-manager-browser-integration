@@ -41,3 +41,22 @@ export function SettingsIcon(
         </svg>
     </div>
 }
+/** 下載圖示（進托盤箭頭），供下載方式選擇視窗等 UI 使用 */
+export function DownloadIcon(
+    props: {
+        className: string,
+    }
+) {
+    return <div {...props} >
+        <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g opacity="0.75">
+                <path d="M12 3V14"
+                      stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                <path d="M7.5 10.5L12 15L16.5 10.5"
+                      stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 18.5H20"
+                      stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+            </g>
+        </svg>
+    </div>
+}

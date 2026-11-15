@@ -12,6 +12,7 @@ import {DefinedCommands} from "~/message/Commands";
 import {defineExtensionEntry} from "~/utils/DefineExtensionEntry";
 import {createRoot} from "react-dom/client";
 import BrowserActionEntryType from "~/utils/EntryPointTypes/BrowserAction/BrowserActionEntryType";
+import {DownloadChooserUi, getChooserIdFromLocation} from "~/browseractionpopup/DownloadChooserUi";
 
 class BrowserActionViewModel extends BaseViewModel {
     private readonly keys: string[]
@@ -32,6 +33,7 @@ class BrowserActionViewModel extends BaseViewModel {
             this.autoCaptureLinks = config.autoCaptureLinks
             this.popupEnabled = config.popupEnabled
             this.silentAddDownload = config.silentAddDownload
+            this.askDownloadMethod = config.askDownloadMethod
         })
         run(async () => {
             const isAppReachable = await sendMessage(
@@ -49,6 +51,8 @@ class BrowserActionViewModel extends BaseViewModel {
     autoCaptureLinks!: boolean
     @observable
     silentAddDownload!: boolean
+    @observable
+    askDownloadMethod!: boolean
 
     @observable
     canReachable: boolean | null = null
@@ -68,6 +72,10 @@ class BrowserActionViewModel extends BaseViewModel {
 
     setSilentAddDownload(value: boolean) {
         Configs.setConfigItem("silentAddDownload", value)
+    }
+
+    setAskDownloadMethod(value: boolean) {
+        Configs.setConfigItem("askDownloadMethod", value)
     }
 
 }
@@ -128,6 +136,7 @@ const BrowserActionUi: React.FC<{
         <Header canReachable={vm.canReachable}/>
         <div className="bg-base-200 shadow">
             <AutoCaptureSection enabled={vm.autoCaptureLinks} toggle={(v) => vm.setAutoCaptureLinks(v)}/>
+            <AskMethodSection enabled={vm.askDownloadMethod} toggle={(v) => vm.setAskDownloadMethod(v)}/>
             <EnableSection enabled={vm.popupEnabled} toggle={(v) => vm.setPopupEnabled(v)}/>
             <SilentAddDownload enabled={vm.silentAddDownload} toggle={(v) => vm.setSilentAddDownload(v)}/>
             <MoreSettings/>
@@ -200,6 +209,28 @@ function SilentAddDownload(
     />
 }
 
+function AskMethodSection(
+    props: {
+        enabled: boolean,
+        toggle: (v: boolean) => void
+    }
+) {
+    return <OptionItem
+        left={
+            <div>{browser.i18n.getMessage("config_ask_download_method")}</div>
+        }
+        onClick={
+            () => props.toggle(!props.enabled)
+        }
+        right={
+            <input
+                checked={props.enabled}
+                type="checkbox"
+                className="checkbox"/>
+        }
+    />
+}
+
 function AutoCaptureSection(
     props: {
         enabled: boolean,
@@ -224,8 +255,16 @@ function AutoCaptureSection(
 export default defineExtensionEntry()
     .withType(BrowserActionEntryType)
     .withInit(async (context) => {
-        const vm = new BrowserActionViewModel(context.getLatestConfig())
         const container = document.getElementById("app")!
+        // ?chooser=<id>：背景開出的「下載方式選擇視窗」，渲染選擇 UI 而非快速設定
+        const chooserId = getChooserIdFromLocation()
+        if (chooserId) {
+            createRoot(container).render(
+                <DownloadChooserUi chooserId={chooserId}/>,
+            )
+            return
+        }
+        const vm = new BrowserActionViewModel(context.getLatestConfig())
         createRoot(container).render(
             <BrowserActionUi vm={vm}/>,
         )

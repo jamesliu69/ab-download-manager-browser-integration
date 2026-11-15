@@ -80,6 +80,11 @@ const ConfigType = z.object({
     ),
     allowPassDownloadIfAppNotRespond: z.boolean().catch(true),
     closeNewTabIfItWasCaptured: z.boolean().catch(true),
+    /**
+     * 自動攔截到下載時，是否先彈出「下載方式選擇視窗」
+     * （用 AB Download Manager 下載／用瀏覽器下載），而非直接送連 App。
+     */
+    askDownloadMethod: z.boolean().catch(true),
     silentAddDownload: z.boolean().catch(false),
     silentStartDownload: z.boolean().catch(false),
     blacklistedUrls: z.array(z.string()).catch([]),
